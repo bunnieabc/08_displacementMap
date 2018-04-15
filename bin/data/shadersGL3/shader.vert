@@ -1,0 +1,32 @@
+#version 150
+
+// these are from the programmable pipeline system
+uniform mat4 modelViewProjectionMatrix;
+uniform float maxHeight;
+in vec4 position;
+in vec2 texcoord;
+in vec4 normal;
+in vec4 vertex;
+
+// this is how we receive the texture
+uniform sampler2DRect tex0;
+uniform sampler2DRect colormap;
+//out vec2 vUv;
+out vec2 texCoordVarying;
+
+void main()
+{
+
+
+    vec4 bumpColor = texture(tex0, texcoord);
+    
+    float df = 0.30 * bumpColor.x + 0.59 * bumpColor.y + 0.11 * bumpColor.z;
+    vec4 newVertexPos = (normal * df * maxHeight/500) + vertex;
+
+    gl_Position = modelViewProjectionMatrix * newVertexPos;
+
+    texCoordVarying = texcoord;
+
+
+
+}
