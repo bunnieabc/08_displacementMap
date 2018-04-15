@@ -5,7 +5,7 @@ uniform mat4 modelViewProjectionMatrix;
 uniform float maxHeight;
 in vec4 position;
 in vec2 texcoord;
-in vec4 normal;
+in vec3 normal;
 in vec4 vertex;
 
 // this is how we receive the texture
@@ -24,7 +24,7 @@ void main()
     vec4 bumpColor = texture(tex0, texcoord);
     
     float df = 0.30 * bumpColor.x + 0.59 * bumpColor.y + 0.11 * bumpColor.z;
-    vec4 newVertexPos = (normal * df * maxHeight/500) + vertex;
+    vec4 newVertexPos = vec4(normal * df * (maxHeight)/2 , 0.0) + vertex;
 
     gl_Position = modelViewProjectionMatrix * newVertexPos;
 

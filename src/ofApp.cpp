@@ -8,6 +8,9 @@ void ofApp::setup(){
 #else
 	if(ofIsGLProgrammableRenderer()){
 		shader.load("shadersGL3/shader");
+        shaderBlurX.load("shadersGL3/shaderBlurX");
+        shaderBlurY.load("shadersGL3/shaderBlurY");
+        shaderGlow.load("shadersGL3/shaderGlow");
         cout << "test" << "\n";
 	}else{
 		shader.load("shadersGL2/shader");
@@ -18,7 +21,7 @@ void ofApp::setup(){
     img.allocate(320, 160, OF_IMAGE_COLOR);
     img.update();
     bumpmap.load("test_tex.jpg");
-    float width     = 300;
+    float width     = 150;
     float height    = ofGetHeight() * .35;
     sphere.setRadius( width );
     sphere.setResolution(100);
@@ -30,11 +33,19 @@ void ofApp::setup(){
     img2.allocate(320, 160, OF_IMAGE_COLOR);
     img2.update();
     pxs = ofRandom(2,11);
+    
+    //FBO
+    fboBlurOnePass.allocate(ofGetWidth(), ofGetHeight());
+    fboBlurTwoPass.allocate(ofGetWidth(), ofGetHeight());
+    fboBlurThreePass.allocate(ofGetWidth(), ofGetHeight());
+    
+   
+    
 }
 
 //--------------------------------------------------------------
 void ofApp::update(){
-    float noiseScale = ofMap(mouseX, 0, ofGetWidth(), 0, 0.1);
+    float noiseScale = ofMap(mouseX, 0, ofGetWidth(), 0, 0.3);
     float noiseVel = ofGetElapsedTimef();
 	ofPixels pixels = img.getPixels();
     int w = img.getWidth();
@@ -45,7 +56,7 @@ void ofApp::update(){
             int i = y * w + x;
             float noiseVelue = ofNoise(x * noiseScale, y * noiseScale, noiseVel);
             float valc = ofMap(255 * noiseVelue, 0, 255, 200, 255);
-            ofColor c(valc, valc, ofRandom(100, 255));
+            ofColor c(valc * 0.3, valc * 0.3, ofRandom(0, 100));
             pixels.setColor(x,y, c);
         }
     }
@@ -90,15 +101,26 @@ void ofApp::update(){
 //--------------------------------------------------------------
 void ofApp::draw(){
     ofBackground(0, 0, 0);
+    //ofFbo fboBlurOnePass;
+    //ofFbo fboBlurTwoPass;
+    
+    float blur = ofMap(mouseX, 0, ofGetWidth(), 0, 10, true);
     // bind our texture. in our shader this will now be tex0 by default
     // so we can just go ahead and access it there.
-    img.getTexture().bind();
     
+    fboBlurOnePass.begin();
+    {
+        ofClear(0,0,0,0);
+    }
+    fboBlurOnePass.end();
+    
+    
+    img.getTexture().bind();
+    fboBlurOnePass.begin();
     shader.begin();
     shader.setUniformTexture("colormap", img2, 2);
     shader.setUniform1f("maxHeight", mouseX);
-    shader.setUniform1f("iTime", ofGetElapsedTimef());
-    shader.setUniform2f("iResolution", (float)ofGetWidth(), (float)ofGetHeight());
+
     
     ofPushMatrix();
     
@@ -119,9 +141,81 @@ void ofApp::draw(){
     ofPopMatrix();
     
     shader.end();
-
-    ofSetColor(ofColor::white);
+    fboBlurOnePass.end();
+    //ofSetColor(ofColor::white);
     //img.draw(0, 0);
+    //ofPushStyle();
+    ofSetColor(ofColor::white);
+    //ofDrawRectangle(0, 0, 0, ofGetWidth(), ofGetHeight());
+    //ofPopStyle();
+    //fboBlurOnePass.draw(0,0);
+    
+    
+    // Second Shader
+    fboBlurTwoPass.begin();
+    {
+        ofClear(0,0,0,0);
+    }
+    fboBlurTwoPass.end();
+    fboBlurTwoPass.begin();
+    
+    shaderBlurX.begin();
+    shaderBlurX.setUniformTexture("screenshot", fboBlurOnePass.getTexture(), 1);
+    //shaderBlurX.setUniform1f("iTime", ofGetElapsedTimef());
+    //shaderBlurX.setUniform2f("iResolution", (float)ofGetWidth(), (float)ofGetHeight());
+    shaderBlurX.setUniform1f("blurAmnt", blur);
+    
+    fboBlurOnePass.draw(0, 0);
+    
+    shaderBlurX.end();
+    
+    fboBlurTwoPass.end();
+    //fboBlurTwoPass.draw(0, 0);
+    
+    // third shader
+    
+    fboBlurThreePass.begin();
+    {
+        ofClear(0,0,0,0);
+    }
+    fboBlurThreePass.end();
+    fboBlurThreePass.begin();
+    
+    shaderBlurY.begin();
+    shaderBlurY.setUniformTexture("screenshot2", fboBlurTwoPass.getTexture(), 1);
+    shaderBlurY.setUniform1f("blurAmnt", blur);
+    
+    fboBlurTwoPass.draw(0, 0);
+    
+    shaderBlurY.end();
+    
+    fboBlurThreePass.end();
+    
+    //----------------------------------------------------------
+    //ofSetColor(ofColor::white);
+    fboBlurThreePass.draw(0, 0);
+    //ofSetColor(ofColor::white);
+    //fboBlurOnePass.clear();
+    //fboBlurTwoPass.clear();
+    fboBlurOnePass.draw(0, 0);
+   
+    
+    
+    
+    //----------------------------------------------------------
+    
+    
+
+    
+    
+    
+    
+    
+    //----------------------------------------------------------
+    
+    
+    
+    
 }
 
 //--------------------------------------------------------------

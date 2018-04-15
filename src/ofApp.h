@@ -19,11 +19,15 @@ class ofApp : public ofBaseApp{
 	void dragEvent(ofDragInfo dragInfo);
 	void gotMessage(ofMessage msg);
 
-    ofShader shader;
+    ofShader shader, shaderBlurX, shaderBlurY, shaderGlow;
+    ofFbo fboBlurOnePass;
+    ofFbo fboBlurTwoPass;
+    ofFbo fboBlurThreePass;
     //ofPlanePrimitive plane;
     ofSpherePrimitive sphere;
     ofImage img, img2;
     ofImage bumpmap;
     GLUquadricObj *quadric;
     int first = 0;
+    ofFbo fbo;
 };
