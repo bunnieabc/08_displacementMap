@@ -5,11 +5,16 @@ uniform sampler2DRect colormap;
 
 in vec2 texCoordVarying;
 
-in vec2 vUv;
+//uniform vec2 iResolution;           // viewport resolution (in pixels)
+//uniform float iTime;                 // shader playback time (in seconds)
+
+
 out vec4 outputColor;
  
+
+
 void main()
 {
-  
+   
     outputColor = texture(colormap, texCoordVarying);
 }

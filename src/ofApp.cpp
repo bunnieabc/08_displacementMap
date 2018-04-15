@@ -72,7 +72,7 @@ void ofApp::update(){
     for(int y=0; y<h; y++) {
         for(int x=0; x<w; x++) {
             int i = y * w + x;
-            float r = ofMap(x, 0, h, 0, 255);
+            float r = ofMap(x, 0, w, 0, 255);
             float g = ofMap(y, 0, h, 0, 255);
             float b = 255;
             float a = 1.0;
@@ -83,21 +83,6 @@ void ofApp::update(){
     }
     img2.setFromPixels(pixels);
     img2.update();
-    
-    
-    
-    /*ofPixels pixels2 = img2.getPixels();
-    int w2 = img2.getWidth();
-    int h2 = img2.getHeight();
-    for(int y = 0; y < h2; y++) {
-        for(int x = 0; x < w2; x++) {
-
-            if((x % 6 == 0 || x % 6 == 1 || x % 6 == 2) && (y % 6 == 0 || y % 6 == 1 || y % 6 == 2)) {
-                pixels2.setColor(x,y, ofColor::black);
-            }
-            else pixels2.setColor(x,y, ofColor::white);
-        }
-    }*/
     
     
 }
@@ -112,6 +97,9 @@ void ofApp::draw(){
     shader.begin();
     shader.setUniformTexture("colormap", img2, 2);
     shader.setUniform1f("maxHeight", mouseX);
+    shader.setUniform1f("iTime", ofGetElapsedTimef());
+    shader.setUniform2f("iResolution", (float)ofGetWidth(), (float)ofGetHeight());
+    
     ofPushMatrix();
     
     // translate plane into center screen.
@@ -127,7 +115,7 @@ void ofApp::draw(){
     ofRotate(-90,1,0,0);
     
     sphere.draw(ofPolyRenderMode::OF_MESH_FILL);
-    sphere.drawWireframe();
+    //sphere.drawWireframe();
     ofPopMatrix();
     
     shader.end();
