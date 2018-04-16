@@ -19,7 +19,7 @@ class ofApp : public ofBaseApp{
 	void dragEvent(ofDragInfo dragInfo);
 	void gotMessage(ofMessage msg);
 
-    ofShader shader, shaderBlurX, shaderBlurY, shaderGlow;
+    ofShader shader, shaderBlurX, shaderBlurY, shaderGlow, shaderGaussian;
     ofFbo fboBlurOnePass;
     ofFbo fboBlurTwoPass;
     ofFbo fboBlurThreePass;
@@ -30,4 +30,6 @@ class ofApp : public ofBaseApp{
     GLUquadricObj *quadric;
     int first = 0;
     ofFbo fbo;
+    ofLight pointLight;
+    ofVec3f center;
 };

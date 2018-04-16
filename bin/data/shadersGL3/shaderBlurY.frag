@@ -24,7 +24,7 @@ void main()
 	color += 2.0 * texture(screenshot2, texCoordVarying + vec2(0.0, blurAmnt * -3.0));
 	color += 1.0 * texture(screenshot2, texCoordVarying + vec2(0.0, blurAmnt * -4.0));
 
-    color /= 25.0;
+    color /= 18.0;
     
     outputColor = color;
 }

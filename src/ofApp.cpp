@@ -3,14 +3,17 @@ float pxs;
 //--------------------------------------------------------------
 void ofApp::setup(){
     
+    
 #ifdef TARGET_OPENGLES
 	shader.load("shadersES2/shader");
+    cout << "test???" << "\n";
 #else
 	if(ofIsGLProgrammableRenderer()){
 		shader.load("shadersGL3/shader");
         shaderBlurX.load("shadersGL3/shaderBlurX");
         shaderBlurY.load("shadersGL3/shaderBlurY");
-        shaderGlow.load("shadersGL3/shaderGlow");
+        //shaderGlow.load("shadersGL3/shaderGlow");
+        //shaderGaussian.load("shadersGL3/shaderGaussian");
         cout << "test" << "\n";
 	}else{
 		shader.load("shadersGL2/shader");
@@ -21,10 +24,10 @@ void ofApp::setup(){
     img.allocate(320, 160, OF_IMAGE_COLOR);
     img.update();
     bumpmap.load("test_tex.jpg");
-    float width     = 150;
+    float width     = 10;
     float height    = ofGetHeight() * .35;
     sphere.setRadius( width );
-    sphere.setResolution(100);
+    sphere.setResolution(120);
     sphere.mapTexCoordsFromTexture(img.getTexture());
     quadric = gluNewQuadric();
     gluQuadricTexture(quadric, GL_TRUE);
@@ -39,7 +42,7 @@ void ofApp::setup(){
     fboBlurTwoPass.allocate(ofGetWidth(), ofGetHeight());
     fboBlurThreePass.allocate(ofGetWidth(), ofGetHeight());
     
-   
+    
     
 }
 
@@ -94,12 +97,13 @@ void ofApp::update(){
     }
     img2.setFromPixels(pixels);
     img2.update();
-    
+    cout<<"?????"<<"\n";
     
 }
 
 //--------------------------------------------------------------
 void ofApp::draw(){
+    
     ofBackground(0, 0, 0);
     //ofFbo fboBlurOnePass;
     //ofFbo fboBlurTwoPass;
@@ -127,7 +131,7 @@ void ofApp::draw(){
     // translate plane into center screen.
     float tx = ofGetWidth() / 2;
     float ty = ofGetHeight() / 2;
-    ofTranslate(tx, ty);
+    ofTranslate(tx, ty, ofGetElapsedTimef() * 30);
 
     // the mouse/touch Y position changes the rotation of the plane.
     float percentY = mouseY / (float)ofGetHeight();
@@ -135,9 +139,9 @@ void ofApp::draw(){
     //ofRotate(rotation, 1, 0, 0);
     ofRotateY(360 * sinf(float(ofGetFrameNum())/500.0f));
     ofRotate(-90,1,0,0);
-    
+
     sphere.draw(ofPolyRenderMode::OF_MESH_FILL);
-    //sphere.drawWireframe();
+    sphere.drawWireframe();
     ofPopMatrix();
     
     shader.end();
@@ -151,7 +155,34 @@ void ofApp::draw(){
     //fboBlurOnePass.draw(0,0);
     
     
-    // Second Shader
+    //////////////// Gaussian Shader ////////////////
+    /*
+    fboBlurTwoPass.begin();
+    {
+        ofClear(0,0,0,0);
+    }
+    fboBlurTwoPass.end();
+    fboBlurTwoPass.begin();
+    
+    shaderGaussian.begin();
+    shaderGaussian.setUniformTexture("screenshot", fboBlurOnePass.getTexture(), 2);
+    shaderGaussian.setUniform3f("resolution", (float)ofGetWidth(), (float)ofGetHeight(), 0.0);
+    shaderGaussian.setUniform1f("u_sigma", 100);
+    shaderGaussian.setUniform1f("u_width", (float)ofGetWidth()/30);
+    //shaderBlurX.setUniform1f("iTime", ofGetElapsedTimef());
+    //shaderBlurX.setUniform2f("iResolution", (float)ofGetWidth(), (float)ofGetHeight());
+    //shaderGaussian.setUniform1f("blurAmnt", blur);
+    
+    fboBlurOnePass.draw(0, 0);
+    shaderGaussian.end();
+    fboBlurTwoPass.end();
+    
+    fboBlurTwoPass.draw(0, 0);
+    */
+    
+    
+    
+    //////////////// Second Shader /////////////////
     fboBlurTwoPass.begin();
     {
         ofClear(0,0,0,0);
@@ -163,7 +194,7 @@ void ofApp::draw(){
     shaderBlurX.setUniformTexture("screenshot", fboBlurOnePass.getTexture(), 1);
     //shaderBlurX.setUniform1f("iTime", ofGetElapsedTimef());
     //shaderBlurX.setUniform2f("iResolution", (float)ofGetWidth(), (float)ofGetHeight());
-    shaderBlurX.setUniform1f("blurAmnt", blur);
+    shaderBlurX.setUniform1f("blurAmnt", blur );
     
     fboBlurOnePass.draw(0, 0);
     
@@ -172,7 +203,7 @@ void ofApp::draw(){
     fboBlurTwoPass.end();
     //fboBlurTwoPass.draw(0, 0);
     
-    // third shader
+    //////////////// third shader //////////////////
     
     fboBlurThreePass.begin();
     {
@@ -183,7 +214,7 @@ void ofApp::draw(){
     
     shaderBlurY.begin();
     shaderBlurY.setUniformTexture("screenshot2", fboBlurTwoPass.getTexture(), 1);
-    shaderBlurY.setUniform1f("blurAmnt", blur);
+    shaderBlurY.setUniform1f("blurAmnt", blur );
     
     fboBlurTwoPass.draw(0, 0);
     
@@ -198,7 +229,8 @@ void ofApp::draw(){
     //fboBlurOnePass.clear();
     //fboBlurTwoPass.clear();
     fboBlurOnePass.draw(0, 0);
-   
+    //fboBlurThreePass.draw(0, 0);
+    //fboBlurOnePass.draw(0, 0);
     
     
     
