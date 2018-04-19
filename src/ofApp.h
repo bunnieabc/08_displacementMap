@@ -2,6 +2,7 @@
 
 #include "ofMain.h"
 
+
 class ofApp : public ofBaseApp{
 	public:
 		
@@ -32,4 +33,13 @@ class ofApp : public ofBaseApp{
     ofFbo fbo;
     ofLight pointLight;
     ofVec3f center;
+    
+    
+    //------Audio-------
+    ofSoundStream soundStream;
+    void audioIn( float * input, int bufferSize, int nChannels );
+    vector <float> left;
+    vector <float> right;
+    int bufferSize = 1024;
+    int bufferCounter;
 };

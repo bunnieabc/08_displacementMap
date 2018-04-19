@@ -43,17 +43,40 @@ void ofApp::setup(){
     fboBlurThreePass.allocate(ofGetWidth(), ofGetHeight());
     
     
+    //AUDIO
+    soundStream.printDeviceList();
     
+    
+    left.assign(bufferSize, 0.0);
+    right.assign(bufferSize, 0.0);
+    
+    soundStream.setup(this, 0, 2, 44100, bufferSize, 4);
 }
 
 //--------------------------------------------------------------
 void ofApp::update(){
+    float p = 0;
+    float high = 0;
+//    float mappedScale;
+    float mappedVel;
+    for(int i = 0; i < bufferSize - 1; i+=2) {
+        // p is incrementing left channel input based on bufferSize
+        cout<<left[i]<<"\n";
+        p += left[i];
+    }
+
+        mappedVel = ofMap(p, -30, 30, 0, 5 );
+//      mappedScale = ofMap(p, 0, 30, 1, 2);
+    
+    
+    
     float noiseScale = ofMap(mouseX, 0, ofGetWidth(), 0, 0.3);
-    float noiseVel = ofGetElapsedTimef();
+    float noiseVel = ofGetElapsedTimef() * mappedVel ;
+    
 	ofPixels pixels = img.getPixels();
     int w = img.getWidth();
     int h = img.getHeight();
-    
+
     for(int y=0; y<h; y++) {
         for(int x=0; x<w; x++) {
             int i = y * w + x;
@@ -63,7 +86,7 @@ void ofApp::update(){
             pixels.setColor(x,y, c);
         }
     }
-    
+
     float noiseScale2 = ofMap(mouseY, 0, ofGetWidth(), 0, 0.6);
     int hasBuilding = ofRandom(0,1);
     
@@ -80,7 +103,7 @@ void ofApp::update(){
             }
         }
     }
-	img.setFromPixels(pixels);
+    img.setFromPixels(pixels);
     img.update();
     
     for(int y=0; y<h; y++) {
@@ -97,7 +120,7 @@ void ofApp::update(){
     }
     img2.setFromPixels(pixels);
     img2.update();
-    cout<<"?????"<<"\n";
+//    cout<<"?????"<<"\n";
     
 }
 
@@ -250,6 +273,19 @@ void ofApp::draw(){
     
 }
 
+
+//--------------------------------------------------------------
+
+void ofApp::audioIn( float * input, int bufferSize, int nChannels ){
+    
+
+    for ( int i = 0; i < bufferSize; i++ ) {
+        left[i]     = input[i*2]*.5;
+        right[i]    = input[i*2+1]*.5;
+    }
+    
+    bufferCounter++;
+}
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
     
